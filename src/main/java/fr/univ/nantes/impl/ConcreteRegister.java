@@ -33,5 +33,6 @@ public class ConcreteRegister<T> implements Register<T> {
     public void write(Transaction t, T v) throws AbortException {
         lc_value.set(v);
         lc_isCopied.set(true);
+        t.addWritedRegister(this);
     }
 }

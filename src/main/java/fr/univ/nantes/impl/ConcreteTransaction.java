@@ -18,6 +18,10 @@ public class ConcreteTransaction implements Transaction {
         this.clock = clock;
     }
 
+    public void addWritedRegister(Register r){
+        localWritedSet.add(r);
+    }
+
     @Override
     public void begin() {
         localReadedSet.clear();
@@ -41,11 +45,11 @@ public class ConcreteTransaction implements Transaction {
             }
         }
 
-        commitDate = clock.getAndIncrement();
+        int commitDate = clock.getAndIncrement();
 
         for (Register registerWrite: localWritedSet) {
-            registerWrite.setValue();
-            registerWrite.setDate();
+            registerWrite.setValue(registerWrite.getLocalValue());
+            registerWrite.setDate(commitDate);
         }
     }
 
