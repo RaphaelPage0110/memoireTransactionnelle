@@ -1,17 +1,18 @@
 package fr.univ.nantes.impl;
 
-import com.sun.org.apache.xerces.internal.dom.AbortException;
+import fr.univ.nantes.except.AbortException;
 import fr.univ.nantes.inter.Register;
 import fr.univ.nantes.inter.Transaction;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConcreteTransaction implements Transaction {
+public class ConcreteTransaction<T> implements Transaction<T> {
 
-    private List<ConcreteRegister> localReadSet = new ArrayList<ConcreteRegister>();
-    private List<ConcreteRegister> localWroteSet = new ArrayList<ConcreteRegister>();
+    private List<ConcreteRegister<T>> localReadSet = new ArrayList<ConcreteRegister<T>>();
+    private List<ConcreteRegister<T>> localWroteSet = new ArrayList<ConcreteRegister<T>>();
     private int birthDate;
     private AtomicInteger clock;
     private boolean committed;
@@ -21,11 +22,11 @@ public class ConcreteTransaction implements Transaction {
         committed = false;
     }
 
-    public void addWrittenRegister(ConcreteRegister r){
+    public void addWrittenRegister(ConcreteRegister<T> r){
         localWroteSet.add(r);
     }
 
-    public void addReadRegister(ConcreteRegister r){ localReadSet.add(r);}
+    public void addReadRegister(ConcreteRegister<T> r){ localReadSet.add(r);}
 
     public int getBirthDate(){
         return birthDate;
@@ -36,38 +37,47 @@ public class ConcreteTransaction implements Transaction {
         localReadSet.clear();
         localWroteSet.clear();
         this.birthDate = clock.get();
+        this.committed = false;
     }
 
     @Override
     public void try_to_commit() throws AbortException {
-        for (ConcreteRegister registerRead: localReadSet) {
-            registerRead.lock();
+
+        //in order to avoid deadBlock, we sort the register set
+        List<ConcreteRegister<T>> registers = new ArrayList<>(localReadSet);
+        registers.addAll(localWroteSet);
+        registers.sort(Comparator.comparingInt(ConcreteRegister::getId));
+
+        for (ConcreteRegister<T> register1 : registers) {
+            register1.lock();
         }
 
-        for (ConcreteRegister registerWrite: localWroteSet) {
-            registerWrite.lock();
-        }
+        for (ConcreteRegister<T> registerRead: localReadSet) {
 
-        for (Register registerRead: localReadSet) {
             if (registerRead.getDate() > birthDate) {
+
+                for (ConcreteRegister<T> register : registers) {
+                    register.clearLocal();
+                    register.unlock();
+                }
                 throw new AbortException();
             }
         }
 
-        int commitDate = clock.getAndIncrement();
+        committed = true;
+        int commitDate = clock.incrementAndGet();
 
-        for (Register registerWrite: localWroteSet) {
+        for (Register<T> registerWrite: localWroteSet) {
             registerWrite.setValue(registerWrite.getLocalValue());
             registerWrite.setDate(commitDate);
+            System.out.println("J'ecris la nouvelle valeur de j: " + registerWrite.getLocalValue());
         }
 
-        for (ConcreteRegister registerRead: localReadSet) {
-            registerRead.unlock();
+        for (ConcreteRegister<T> register : registers) {
+            register.clearLocal();
+            register.unlock();
         }
 
-        for (ConcreteRegister registerWrite: localWroteSet) {
-            registerWrite.unlock();
-        }
     }
 
     @Override
