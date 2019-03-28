@@ -26,13 +26,24 @@ public class ConcreteRegister<T> implements Register<T> {
 
     }
 
-    public T read(Transaction t) throws AbortException {
-        return null;
+    public T read(ConcreteTransaction t) throws AbortException {
+        if (lc_isCopied.get()) {
+            return lc_value.get();
+        } else {
+            lc_value.set(value);
+            lc_date.set(date);
+            t.addReadRegister(this);
+            if(lc_date.get() > t.getBirthDate()) {
+                throw new AbortException();
+            } else {
+                return lc_value.get();
+            }
+        }
     }
 
-    public void write(Transaction t, T v) throws AbortException {
+    public void write(ConcreteTransaction t, T v) throws AbortException {
         lc_value.set(v);
         lc_isCopied.set(true);
-        t.addWritedRegister(this);
+        t.addWrittenRegister(this);
     }
 }

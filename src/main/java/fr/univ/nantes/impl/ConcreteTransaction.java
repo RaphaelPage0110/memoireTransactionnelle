@@ -13,13 +13,21 @@ public class ConcreteTransaction implements Transaction {
     private List<Register> localWroteSet;
     private int birthDate;
     private AtomicInteger clock;
+    private boolean commited;
 
     public ConcreteTransaction(AtomicInteger clock) {
         this.clock = clock;
+        commited = false;
     }
 
-    public void addWritedRegister(Register r){
+    public void addWrittenRegister(Register r){
         localWroteSet.add(r);
+    }
+
+    public void addReadRegister(Register r){ localReadSet.add(r);}
+
+    public int getBirthDate(){
+        return birthDate;
     }
 
     @Override
@@ -55,6 +63,6 @@ public class ConcreteTransaction implements Transaction {
 
     @Override
     public boolean isCommited() {
-        return false;
+        return commited;
     }
 }
