@@ -6,7 +6,7 @@ import fr.univ.nantes.inter.Transaction;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ConcreteRegister<T> implements Register<T> {
+public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
 
     private Integer date;
     private T value;
@@ -32,6 +32,7 @@ public class ConcreteRegister<T> implements Register<T> {
         } else {
             lc_value.set(value);
             lc_date.set(date);
+            lc_isCopied.set(true);
             t.addReadRegister(this);
             if(lc_date.get() > t.getBirthDate()) {
                 throw new AbortException();

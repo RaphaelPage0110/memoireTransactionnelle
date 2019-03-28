@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConcreteTransaction implements Transaction {
 
-    private List<Register> localReadSet = new ArrayList<Register>();
-    private List<Register> localWroteSet = new ArrayList<Register>();
+    private List<ConcreteRegister> localReadSet = new ArrayList<ConcreteRegister>();
+    private List<ConcreteRegister> localWroteSet = new ArrayList<ConcreteRegister>();
     private int birthDate;
     private AtomicInteger clock;
     private boolean committed;
@@ -21,11 +21,11 @@ public class ConcreteTransaction implements Transaction {
         committed = false;
     }
 
-    public void addWrittenRegister(Register r){
+    public void addWrittenRegister(ConcreteRegister r){
         localWroteSet.add(r);
     }
 
-    public void addReadRegister(Register r){ localReadSet.add(r);}
+    public void addReadRegister(ConcreteRegister r){ localReadSet.add(r);}
 
     public int getBirthDate(){
         return birthDate;
@@ -40,11 +40,11 @@ public class ConcreteTransaction implements Transaction {
 
     @Override
     public void try_to_commit() throws AbortException {
-        for (Register registerRead: localReadSet) {
+        for (ConcreteRegister registerRead: localReadSet) {
             registerRead.lock();
         }
 
-        for (Register registerWrite: localWroteSet) {
+        for (ConcreteRegister registerWrite: localWroteSet) {
             registerWrite.lock();
         }
 
@@ -59,6 +59,14 @@ public class ConcreteTransaction implements Transaction {
         for (Register registerWrite: localWroteSet) {
             registerWrite.setValue(registerWrite.getLocalValue());
             registerWrite.setDate(commitDate);
+        }
+
+        for (ConcreteRegister registerRead: localReadSet) {
+            registerRead.unlock();
+        }
+
+        for (ConcreteRegister registerWrite: localWroteSet) {
+            registerWrite.unlock();
         }
     }
 
