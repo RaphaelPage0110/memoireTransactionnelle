@@ -4,20 +4,21 @@ import com.sun.org.apache.xerces.internal.dom.AbortException;
 import fr.univ.nantes.inter.Register;
 import fr.univ.nantes.inter.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConcreteTransaction implements Transaction {
 
-    private List<Register> localReadSet;
-    private List<Register> localWroteSet;
+    private List<Register> localReadSet = new ArrayList<Register>();
+    private List<Register> localWroteSet = new ArrayList<Register>();
     private int birthDate;
     private AtomicInteger clock;
-    private boolean commited;
+    private boolean committed;
 
     public ConcreteTransaction(AtomicInteger clock) {
         this.clock = clock;
-        commited = false;
+        committed = false;
     }
 
     public void addWrittenRegister(Register r){
@@ -62,7 +63,7 @@ public class ConcreteTransaction implements Transaction {
     }
 
     @Override
-    public boolean isCommited() {
-        return commited;
+    public boolean isCommitted() {
+        return committed;
     }
 }

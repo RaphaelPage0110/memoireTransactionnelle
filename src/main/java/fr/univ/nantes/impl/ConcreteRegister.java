@@ -8,12 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcreteRegister<T> implements Register<T> {
 
-    Integer date;
-    T value;
-    Lock myLock = new ReentrantLock();
-    ThreadLocal<T> lc_value;
-    ThreadLocal<Integer> lc_date;
-    ThreadLocal<Boolean> lc_isCopied;
+    private Integer date;
+    private T value;
+    private Lock myLock = new ReentrantLock();
+    private ThreadLocal<T> lc_value;
+    private ThreadLocal<Integer> lc_date;
+    private ThreadLocal<Boolean> lc_isCopied;
 
     public ConcreteRegister(Integer date, final T value) {
         this.date = date;
@@ -45,5 +45,25 @@ public class ConcreteRegister<T> implements Register<T> {
         lc_value.set(v);
         lc_isCopied.set(true);
         t.addWrittenRegister(this);
+    }
+
+    public Integer getDate() {
+        return date;
+    }
+
+    public void setDate(Integer date) {
+        this.date = date;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    public ThreadLocal<T> getLocalValue() {
+        return lc_value;
     }
 }

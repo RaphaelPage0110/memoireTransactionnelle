@@ -6,7 +6,7 @@ import fr.univ.nantes.impl.ConcreteRegister;
 public interface Transaction {
     public void begin () ;
     public void try_to_commit () throws AbortException;
-    public boolean isCommited () ;
+    public boolean isCommitted() ;
     public void addWrittenRegister(Register r);
 
 }
