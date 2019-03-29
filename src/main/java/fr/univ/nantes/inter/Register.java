@@ -1,11 +1,11 @@
 package fr.univ.nantes.inter;
 
-import fr.univ.nantes.except.AbortException;
+import fr.univ.nantes.except.AbortReadingException;
 import fr.univ.nantes.impl.ConcreteTransaction;
 
 public interface Register<T> {
-    T read ( ConcreteTransaction t ) throws AbortException;
-    void write ( ConcreteTransaction t , T v ) throws AbortException ;
+    T read ( ConcreteTransaction t ) throws AbortReadingException;
+    void write ( ConcreteTransaction t , T v ) throws AbortReadingException;
     Integer getDate();
     void setDate(Integer date);
     T getValue();

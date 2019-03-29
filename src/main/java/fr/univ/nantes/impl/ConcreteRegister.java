@@ -1,10 +1,7 @@
 package fr.univ.nantes.impl;
 
-import fr.univ.nantes.except.AbortException;
+import fr.univ.nantes.except.AbortReadingException;
 import fr.univ.nantes.inter.Register;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
@@ -12,44 +9,39 @@ public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
     private int id;
     private Integer date;
     private T value;
-    private Lock myLock = new ReentrantLock();
-    private ThreadLocal<T> lc_value;
-    private ThreadLocal<Integer> lc_date;
-    private ThreadLocal<Boolean> lc_isCopied;
+    private ThreadLocal<T> lc_value = new ThreadLocal<>();
+    private ThreadLocal<Integer> lc_date = new ThreadLocal<>();
 
-    public ConcreteRegister(Integer date, final T value, int id) {
+    public ConcreteRegister(Integer date, T value, int id) {
         this.id = id;
         this.date = date;
         this.value = value;
-        lc_value = new ThreadLocal<>();
-        lc_value.set(value);
-        lc_date = new ThreadLocal<>();
-        lc_date.set(date);
-        lc_isCopied = new ThreadLocal<>();
-        lc_isCopied.set(false);
-
     }
 
-    public T read(ConcreteTransaction t) throws AbortException {
-        if (lc_isCopied.get() != null) {
+    //allow to read a register during a transaction
+    public T read(ConcreteTransaction t) throws AbortReadingException {
+
+        //if the value has already been copied during the transaction
+        //there is no need to copy it again
+        if (lc_value.get() != null) {
             return lc_value.get();
         } else {
             lc_value.set(value);
             lc_date.set(date);
-            lc_isCopied.set(true);
             t.addReadRegister(this);
+
+            //if the register have been modified after the transaction began we abort
             if(lc_date.get() > t.getBirthDate()) {
-                System.out.println("J'ai avorté dans le registre");
-                throw new AbortException();
+                throw new AbortReadingException(Thread.currentThread().getId());
             } else {
                 return lc_value.get();
             }
         }
     }
 
-    public void write(ConcreteTransaction t, T v) throws AbortException {
+    //allow to write a register during a transaction
+    public void write(ConcreteTransaction t, T v){
         lc_value.set(v);
-        lc_isCopied.set(true);
         t.addWrittenRegister(this);
     }
 
@@ -65,10 +57,6 @@ public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
         return value;
     }
 
-    public boolean getIsCopied(){
-        return lc_isCopied.get();
-    }
-
 
     public void setValue(T value) {
         this.value = value;
@@ -82,7 +70,9 @@ public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
         return id;
     }
 
+    //clear local value
     public void clearLocal(){
-        lc_isCopied.remove();
+        lc_date.remove();
+        lc_value.remove();
     }
 }
