@@ -1,6 +1,7 @@
-package fr.univ.nantes.inter;
+package fr.univ.nantes.TL2.inter;
 
-import fr.univ.nantes.except.AbortCommitException;
+import fr.univ.nantes.TL2.except.AbortCommitException;
+import fr.univ.nantes.TL2.inter.Register;
 
 /**
  * Interface that allows to manage transactions that reference a set of read and write operations on atomic registers,

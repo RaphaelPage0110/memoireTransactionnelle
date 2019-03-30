@@ -1,4 +1,4 @@
-package fr.univ.nantes.except;
+package fr.univ.nantes.TL2.except;
 
 public class AbortCommitException extends Exception{
 

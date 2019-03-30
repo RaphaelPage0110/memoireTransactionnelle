@@ -1,6 +1,6 @@
-package fr.univ.nantes.inter;
+package fr.univ.nantes.TL2.inter;
 
-import fr.univ.nantes.except.AbortReadingException;
+import fr.univ.nantes.TL2.except.AbortReadingException;
 
 /**
  * Interface that allows to read and write a value in a register through a transaction.

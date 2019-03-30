@@ -1,9 +1,9 @@
 package fr.univ.nantes.monteCarlo;
 
-import fr.univ.nantes.except.AbortCommitException;
-import fr.univ.nantes.except.AbortReadingException;
-import fr.univ.nantes.impl.ConcreteRegister;
-import fr.univ.nantes.impl.ConcreteTransaction;
+import fr.univ.nantes.TL2.except.AbortCommitException;
+import fr.univ.nantes.TL2.except.AbortReadingException;
+import fr.univ.nantes.TL2.impl.ConcreteRegister;
+import fr.univ.nantes.TL2.impl.ConcreteTransaction;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +12,6 @@ public class Main
 {
 
   // Print a very basic program description and ask for number of throws
-
   public static void main (String[] args)
   {
     Scanner reader = new Scanner (System.in);

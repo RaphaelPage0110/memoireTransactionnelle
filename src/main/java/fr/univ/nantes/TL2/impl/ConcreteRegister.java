@@ -1,8 +1,8 @@
-package fr.univ.nantes.impl;
+package fr.univ.nantes.TL2.impl;
 
-import fr.univ.nantes.except.AbortReadingException;
-import fr.univ.nantes.inter.Register;
-import fr.univ.nantes.inter.Transaction;
+import fr.univ.nantes.TL2.except.AbortReadingException;
+import fr.univ.nantes.TL2.inter.Register;
+import fr.univ.nantes.TL2.inter.Transaction;
 
 import java.util.concurrent.locks.ReentrantLock;
 
