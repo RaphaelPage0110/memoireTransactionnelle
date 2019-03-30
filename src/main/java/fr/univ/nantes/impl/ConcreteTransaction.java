@@ -9,92 +9,150 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This Transaction implementation is a way to manage write and read access to registers in a consistent way.
+ *
+ * @param <T> the type of value contained in the registers that we manage.
+ *
+ * @author Raphael PAGE
+ * @author Glenn PLOUHINEC
+ * @see Transaction
+ */
 public class ConcreteTransaction<T> implements Transaction<T> {
 
-    private List<ConcreteRegister<T>> localReadSet = new ArrayList<>();
-    private List<ConcreteRegister<T>> localWroteSet = new ArrayList<>();
+    /**
+     * This is the set of registers where reading operations are performed.
+     */
+    private List<Register<T>> localReadSet = new ArrayList<>();
+
+    /**
+     * This is the set of registers where writing operations are performed.
+     */
+    private List<Register<T>> localWroteSet = new ArrayList<>();
+
+    /**
+     * This is the start date of the transaction, initialized by the general clock, in begin().
+     */
     private int birthDate;
+
+    /**
+     * This is the general system clock.
+     */
     private AtomicInteger clock;
+
+    /**
+     * Indicates whether a transaction has been committed.
+     */
     private boolean committed;
 
+    /**
+     * ConcreteTransaction constructor, initializes the clock and the committed attribute.
+     * @param clock the general system clock.
+     */
     public ConcreteTransaction(AtomicInteger clock) {
         this.clock = clock;
-        committed = false;
+        this.committed = false;
     }
 
-    public void addWrittenRegister(ConcreteRegister<T> r){
-        localWroteSet.add(r);
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
+    @Override
+    public int getBirthDate() {
+        return this.birthDate;
     }
 
-    public void addReadRegister(ConcreteRegister<T> r){ localReadSet.add(r);}
-
-    public int getBirthDate(){
-        return birthDate;
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
+    @Override
+    public boolean isCommitted() {
+        return this.committed;
     }
 
-    //begin a transaction
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
+    @Override
+    public void addWrittenRegister(Register<T> newRegister) {
+        this.localWroteSet.add(newRegister);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
+    @Override
+    public void addReadRegister(Register<T> newRegister) {
+        this.localReadSet.add(newRegister);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
     @Override
     public void begin() {
 
         //clear the local value of all the register
-        for (ConcreteRegister<T> registerRead: localReadSet){
+        for (Register<T> registerRead: this.localReadSet) {
             registerRead.clearLocal();
         }
         //and remove all the register from the list
-        localReadSet.clear();
+        this.localReadSet.clear();
 
-        for (ConcreteRegister<T> registerWrite: localWroteSet){
+        for (Register<T> registerWrite: this.localWroteSet) {
             registerWrite.clearLocal();
         }
-        localWroteSet.clear();
+        this.localWroteSet.clear();
 
-        this.birthDate = clock.get();
+        this.birthDate = this.clock.get();
         this.committed = false;
     }
 
-    //try to commit a transaction
+    /**
+     * {@inheritDoc}
+     * @see Transaction
+     */
     @Override
     public void try_to_commit() throws AbortCommitException {
 
         //in order to avoid deadLocks, we sort the register set by id
-        List<ConcreteRegister<T>> registers = new ArrayList<>(localReadSet);
-        registers.addAll(localWroteSet);
-        registers.sort(Comparator.comparingInt(ConcreteRegister::getId));
+        List<Register<T>> registers = new ArrayList<>(this.localReadSet);
+        registers.addAll(this.localWroteSet);
+        registers.sort(Comparator.comparingInt(Register::getId));
 
         //we lock all the registers
-        for (ConcreteRegister<T> register1 : registers) {
-            register1.lock();
+        for (Register<T> register : registers) {
+            register.lock();
         }
 
         //If the registers have been modfied by another thread since the transaction started we abort
-        for (ConcreteRegister<T> registerRead: localReadSet) {
+        for (Register<T> registerRead: this.localReadSet) {
 
-            if (registerRead.getDate() > birthDate) {
+            if (registerRead.getDate() > this.birthDate) {
 
-                for (ConcreteRegister<T> register : registers) {
+                for (Register<T> register : registers) {
                     register.unlock();
                 }
                 throw new AbortCommitException(Thread.currentThread().getId());
             }
         }
 
-        committed = true;
+        this.committed = true;
 
         //if we can commit, the we modify the value of the sets
-        for (Register<T> registerWrite: localWroteSet) {
+        for (Register<T> registerWrite : this.localWroteSet) {
             registerWrite.setValue(registerWrite.getLocalValue());
-            registerWrite.setDate(clock.incrementAndGet());
+            registerWrite.setDate(this.clock.incrementAndGet());
         }
 
         //and we unlock them
-        for (ConcreteRegister<T> register : registers) {
+        for (Register<T> register : registers) {
             register.unlock();
         }
-
-    }
-
-    @Override
-    public boolean isCommitted() {
-        return committed;
     }
 }
