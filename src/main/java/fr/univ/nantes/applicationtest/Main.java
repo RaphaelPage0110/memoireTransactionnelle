@@ -1,4 +1,4 @@
-package fr.univ.nantes.applicationTest;
+package fr.univ.nantes.applicationtest;
 
 import fr.univ.nantes.except.AbortCommitException;
 import fr.univ.nantes.except.AbortReadingException;
@@ -9,19 +9,19 @@ import fr.univ.nantes.inter.Transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Main {
+class Main {
 
     public static void main(String argv[]){
 
         AtomicInteger clock = new AtomicInteger(0);
         AtomicInteger idCount = new AtomicInteger(0);
-        Register<Integer> partage = new ConcreteRegister<Integer>(clock.get(), 0, idCount.getAndIncrement());
+        Register<Integer> partage = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
 
         Thread threads[] = new Thread[10000];
 
         for (int i=0; i < threads.length ;i++){
             threads[i] = new Thread(() -> {
-                Transaction<Integer> transaction = new ConcreteTransaction<Integer>(clock);
+                Transaction<Integer> transaction = new ConcreteTransaction<>(clock);
 
                 while(!transaction.isCommitted()) {
 

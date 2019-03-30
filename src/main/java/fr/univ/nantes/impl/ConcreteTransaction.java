@@ -23,12 +23,12 @@ public class ConcreteTransaction<T> implements Transaction<T> {
     /**
      * This is the set of registers where reading operations are performed.
      */
-    private List<Register<T>> localReadSet = new ArrayList<>();
+    private final List<Register<T>> localReadSet = new ArrayList<>();
 
     /**
      * This is the set of registers where writing operations are performed.
      */
-    private List<Register<T>> localWroteSet = new ArrayList<>();
+    private final List<Register<T>> localWroteSet = new ArrayList<>();
 
     /**
      * This is the start date of the transaction, initialized by the general clock, in begin().
@@ -38,7 +38,7 @@ public class ConcreteTransaction<T> implements Transaction<T> {
     /**
      * This is the general system clock.
      */
-    private AtomicInteger clock;
+    private final AtomicInteger clock;
 
     /**
      * Indicates whether a transaction has been committed.
@@ -130,7 +130,7 @@ public class ConcreteTransaction<T> implements Transaction<T> {
             register.lock();
         }
 
-        //If the registers have been modfied by another thread since the transaction started we abort
+        //If the registers have been modified by another thread since the transaction started we abort
         for (Register<T> registerRead: this.localReadSet) {
 
             if (registerRead.getDate() > this.birthDate) {
@@ -143,6 +143,7 @@ public class ConcreteTransaction<T> implements Transaction<T> {
         }
 
         this.committed = true;
+        //System.out.println("Successful transaction for the thread " + Thread.currentThread().getId());
 
         //if we can commit, the we modify the value of the sets
         for (Register<T> registerWrite : this.localWroteSet) {

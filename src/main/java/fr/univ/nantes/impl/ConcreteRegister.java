@@ -19,7 +19,7 @@ public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
     /**
      * The ID of the register. Should be unique in the application.
      */
-    private int id;
+    private final int id;
 
     /**
      * The date of the last writing in the register.
@@ -34,12 +34,12 @@ public class ConcreteRegister<T> extends ReentrantLock implements Register<T> {
     /**
      * The local copy of the register value, specific to each thread.
      */
-    private ThreadLocal<T> lc_value = new ThreadLocal<>();
+    private final ThreadLocal<T> lc_value = new ThreadLocal<>();
 
     /**
      * The local copy of the register date, specific to each thread.
      */
-    private ThreadLocal<Integer> lc_date = new ThreadLocal<>();
+    private final ThreadLocal<Integer> lc_date = new ThreadLocal<>();
 
     /**
      * ConcreteRegister constructor, initializes the id, date and value of the register, but not the local copies.
