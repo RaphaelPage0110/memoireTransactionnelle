@@ -2,22 +2,22 @@ package fr.univ.nantes.applicationtest;
 
 import fr.univ.nantes.TL2.except.AbortCommitException;
 import fr.univ.nantes.TL2.except.AbortReadingException;
-import fr.univ.nantes.TL2.impl.ConcreteRegister;
 import fr.univ.nantes.TL2.impl.ConcreteTransaction;
+import fr.univ.nantes.TL2.inter.Register;
 import fr.univ.nantes.TL2.inter.Transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MyThreadTest implements Runnable {
+class MyThreadTest implements Runnable {
 
-  private AtomicInteger clock;
-  private ConcreteRegister<Integer> partage;
-  private ConcreteRegister<Integer> partage2;
+  private final AtomicInteger clock;
+  private final Register<Integer> partage;
+  private final Register<Integer> partage2;
 
-  MyThreadTest(AtomicInteger clock, ConcreteRegister<Integer> register, ConcreteRegister<Integer> register2){
+  MyThreadTest(AtomicInteger clock, Register<Integer> register, Register<Integer> register2) {
     this.clock = clock;
     this.partage = register;
-    this.partage2=register2;
+    this.partage2= register2;
   }
 
   @Override
@@ -43,7 +43,7 @@ public class MyThreadTest implements Runnable {
         System.out.println("Je "+Thread.currentThread().getId()+" lis une valeur de j de "+oldvalueJ);
         System.out.println("Je "+Thread.currentThread().getId()+" lis une valeur de h de "+oldvalueH);
         System.out.println("Je "+Thread.currentThread().getId()+" écris une valeur de j de "+j);
-        System.out.println("Je "+Thread.currentThread().getId()+" écris une valeur de j de "+h);
+        System.out.println("Je "+Thread.currentThread().getId()+" écris une valeur de h de "+h);
         System.out.println("Je "+Thread.currentThread().getId()+" ai réussi à commit");
       } catch(AbortCommitException | AbortReadingException e) {
         e.printStackTrace();

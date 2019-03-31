@@ -1,17 +1,18 @@
 package fr.univ.nantes.applicationtest;
 
 import fr.univ.nantes.TL2.impl.ConcreteRegister;
+import fr.univ.nantes.TL2.inter.Register;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 class Main {
 
-  public static void main(String[] argv){
+  public static void main(String[] argv) {
 
     AtomicInteger clock = new AtomicInteger(0);
     AtomicInteger idCount = new AtomicInteger(0);
-    ConcreteRegister<Integer> partage = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
-    ConcreteRegister<Integer> partage2 = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
+    Register<Integer> partage = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
+    Register<Integer> partage2 = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
 
     Thread[] threads = new Thread[10];
 

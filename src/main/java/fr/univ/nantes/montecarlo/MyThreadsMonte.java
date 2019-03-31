@@ -2,27 +2,27 @@ package fr.univ.nantes.montecarlo;
 
 import fr.univ.nantes.TL2.except.AbortCommitException;
 import fr.univ.nantes.TL2.except.AbortReadingException;
-import fr.univ.nantes.TL2.impl.ConcreteRegister;
 import fr.univ.nantes.TL2.impl.ConcreteTransaction;
+import fr.univ.nantes.TL2.inter.Register;
 import fr.univ.nantes.TL2.inter.Transaction;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MyThreadsMonte implements Runnable {
+class MyThreadsMonte implements Runnable {
 
-  private AtomicInteger clock;
-  private ConcreteRegister<Integer> hits;
-  private Random randomGen;
+  private final AtomicInteger clock;
+  private final Register<Integer> hits;
+  private final Random randomGen;
 
-  MyThreadsMonte(AtomicInteger clock, ConcreteRegister<Integer> register, Random randomGen){
+  MyThreadsMonte(AtomicInteger clock, Register<Integer> register, Random randomGen){
     this.clock = clock;
     this.hits = register;
     this.randomGen = randomGen;
   }
 
   @Override
-  public void run(){
+  public void run() {
     Transaction<Integer> transaction = new ConcreteTransaction<>(clock);
     // Create a random coordinate result to test
     double xPos = (randomGen.nextDouble()) * 2 - 1.0;
@@ -39,7 +39,7 @@ public class MyThreadsMonte implements Runnable {
           hits.write(transaction, j);
           transaction.try_to_commit();
         } catch(AbortCommitException | AbortReadingException e) {
-          //e.printStackTrace();
+          e.printStackTrace();
         }
 
       }

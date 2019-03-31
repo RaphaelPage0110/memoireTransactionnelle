@@ -1,7 +1,10 @@
 package fr.univ.nantes.montecarlo;
-import fr.univ.nantes.TL2.impl.ConcreteRegister;
 
-import java.util.*;
+import fr.univ.nantes.TL2.impl.ConcreteRegister;
+import fr.univ.nantes.TL2.inter.Register;
+
+import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,7 +43,7 @@ class PiApproximation {
 
     AtomicInteger clock = new AtomicInteger(0);
     AtomicInteger idCount = new AtomicInteger(0);
-    ConcreteRegister<Integer> hits = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
+    Register<Integer> hits = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
 
     Thread[] threads = new Thread[numThrows];
 
