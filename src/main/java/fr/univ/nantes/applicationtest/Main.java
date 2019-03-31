@@ -10,12 +10,13 @@ class Main {
 
     AtomicInteger clock = new AtomicInteger(0);
     AtomicInteger idCount = new AtomicInteger(0);
-    ConcreteRegister<Integer> partage = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
+    ConcreteRegister<Integer> partage = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
+    ConcreteRegister<Integer> partage2 = new ConcreteRegister<>(clock.get(), 1, idCount.getAndIncrement());
 
-    Thread[] threads = new Thread[10000];
+    Thread[] threads = new Thread[10];
 
     for (int i=0; i < threads.length ;i++){
-      threads[i] = new Thread(new MyThreadTest(clock, partage));
+      threads[i] = new Thread(new MyThreadTest(clock, partage, partage2));
     }
 
     for (Thread thread : threads) {
