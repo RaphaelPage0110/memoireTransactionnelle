@@ -1,10 +1,5 @@
 package fr.univ.nantes.montecarlo;
-
-import fr.univ.nantes.except.AbortCommitException;
-import fr.univ.nantes.except.AbortReadingException;
-import fr.univ.nantes.impl.ConcreteRegister;
-import fr.univ.nantes.impl.ConcreteTransaction;
-import fr.univ.nantes.inter.Transaction;
+import fr.univ.nantes.TL2.impl.ConcreteRegister;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,19 +30,6 @@ class PiApproximation {
 
 
   /**
-   * Determines if dart thrown is inside the dart board.
-   * @param xPos the abscissa of the dart.
-   * @param yPos the ordinate of the dart.
-   * @return true if the dart thrown is inside the dart board.
-   */
-  private static boolean isInside (double xPos, double yPos) {
-    double distance = Math.sqrt((xPos * xPos) + (yPos * yPos));
-
-    return (distance < 1.0);
-  }
-
-
-  /**
    * Calculates PI based on the number of throws versus misses.
    * @param numThrows the number of throws.
    * @return the approximation of pi.
@@ -60,34 +42,11 @@ class PiApproximation {
     AtomicInteger idCount = new AtomicInteger(0);
     ConcreteRegister<Integer> hits = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
 
-    Thread threads[] = new Thread[numThrows];
+    Thread[] threads = new Thread[numThrows];
 
     for (int i=0; i < threads.length ;i++) {
 
-      threads[i] = new Thread(() -> {
-        Transaction<Integer> transaction = new ConcreteTransaction<>(clock);
-        // Create a random coordinate result to test
-        double xPos = (randomGen.nextDouble()) * 2 - 1.0;
-        double yPos = (randomGen.nextDouble()) * 2 - 1.0;
-
-        // Was the coordinate hitting the dart board?
-        if (isInside(xPos, yPos)) {
-          while(!transaction.isCommitted()) {
-
-            try {
-              transaction.begin();
-              int j = hits.read(transaction);
-              int oldvalue = j;
-              j++;
-              hits.write(transaction, j);
-              transaction.try_to_commit();
-            } catch(AbortCommitException | AbortReadingException e) {
-              //e.printStackTrace();
-            }
-
-          }
-        }
-      });
+      threads[i] = new Thread(new MyThreadsMonte(clock, hits, randomGen));
 
     }
 

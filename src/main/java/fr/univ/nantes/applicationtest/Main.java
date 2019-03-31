@@ -1,49 +1,21 @@
 package fr.univ.nantes.applicationtest;
 
-import fr.univ.nantes.TL2.except.AbortCommitException;
-import fr.univ.nantes.TL2.except.AbortReadingException;
 import fr.univ.nantes.TL2.impl.ConcreteRegister;
-import fr.univ.nantes.TL2.impl.ConcreteTransaction;
-import fr.univ.nantes.TL2.inter.Register;
-import fr.univ.nantes.TL2.inter.Transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 class Main {
 
-  public static void main(String argv[]){
+  public static void main(String[] argv){
 
     AtomicInteger clock = new AtomicInteger(0);
     AtomicInteger idCount = new AtomicInteger(0);
-    Register<Integer> partage = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
+    ConcreteRegister<Integer> partage = new ConcreteRegister<>(clock.get(), 0, idCount.getAndIncrement());
 
-    Thread threads[] = new Thread[10000];
+    Thread[] threads = new Thread[10000];
 
     for (int i=0; i < threads.length ;i++){
-      threads[i] = new Thread(() -> {
-        Transaction<Integer> transaction = new ConcreteTransaction<>(clock);
-
-        while(!transaction.isCommitted()) {
-
-          try {
-            transaction.begin();
-
-            int j = partage.read(transaction);
-            int oldvalue = j;
-            j++;
-            partage.write(transaction, j);
-            partage.read(transaction);
-
-            transaction.try_to_commit();
-
-            System.out.println("Je "+Thread.currentThread().getId()+" lis une valeur de j de "+oldvalue);
-            System.out.println("Je "+Thread.currentThread().getId()+" écris une valeur de j de "+j);
-            System.out.println("Je "+Thread.currentThread().getId()+" ai réussi à commit");
-          } catch(AbortCommitException | AbortReadingException e) {
-            e.printStackTrace();
-          }
-        }
-      });
+      threads[i] = new Thread(new MyThreadTest(clock, partage));
     }
 
     for (Thread thread : threads) {
